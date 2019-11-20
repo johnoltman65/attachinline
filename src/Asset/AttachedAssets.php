@@ -22,25 +22,21 @@ class AttachedAssets extends CoreAttachedAssets implements AttachedAssetsInterfa
    * {@inheritdoc}
    */
   public static function createFromRenderArray(array $render_array) {
-    if (!isset($render_array['#attached'])) {
-      throw new \LogicException('The render array has not yet been rendered, hence not all attachments have been collected yet.');
-    }
 
-    $assets = new static();
+    $assets = parent::createFromRenderArray($render_array);
+
     if (isset($render_array['#attached']['js'])) {
+      $libraries = $assets->getLibraries();
+
       foreach ($render_array['#attached']['js'] as $jsItem) {
         if (isset($jsItem['dependencies']) && is_array($jsItem['dependencies'])) {
-          $render_array['#attached']['library'] = array_merge($render_array['#attached']['library'], $jsItem['dependencies']);
+          $libraries = array_merge($libraries, $jsItem['dependencies']);
         }
       }
+      $assets->setLibraries($libraries);
       $assets->setJs($render_array['#attached']['js']);
     }
-    if (isset($render_array['#attached']['library'])) {
-      $assets->setLibraries($render_array['#attached']['library']);
-    }
-    if (isset($render_array['#attached']['drupalSettings'])) {
-      $assets->setSettings($render_array['#attached']['drupalSettings']);
-    }
+
     return $assets;
   }
 
