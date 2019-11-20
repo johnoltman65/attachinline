@@ -1,0 +1,4 @@
+name: 'Attach Inline'
+type: module
+description: 'Utility module to allow attaching inline JS / CSS snippets'
+core: 8.x

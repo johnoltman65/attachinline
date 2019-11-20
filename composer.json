@@ -1,0 +1,13 @@
+{
+    "name": "attachinline",
+    "type": "drupal-module",
+    "description": "Allow attaching inline JS / CSS snippets",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/attachinline",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/attachinline",
+        "source": "https://git.drupalcode.org/project/attachinline"
+    }
+}
