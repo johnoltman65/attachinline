@@ -25,7 +25,7 @@ class CspSubscriber implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     $events[CspEvents::POLICY_ALTER] = [
       // Execute later in case other listeners add 'unsafe-inline'.
-      ['onCspAlter', -10],
+      ['onCspPolicyAlter', -10],
     ];
     return $events;
   }
@@ -54,15 +54,52 @@ class CspSubscriber implements EventSubscriberInterface {
    * @param \Drupal\csp\Event\PolicyAlterEvent $event
    *   The Policy Alter Event.
    */
-  public function onCspAlter(PolicyAlterEvent $event) {
+  public function onCspPolicyAlter(PolicyAlterEvent $event) {
     $policy = $event->getPolicy();
     foreach ($this->directiveHashList as $directive => $hashes) {
-      if (
-        $policy->hasDirective($directive)
-        &&
-        !in_array(Csp::POLICY_UNSAFE_INLINE, $policy->getDirective($directive))
-      ) {
-        $policy->appendDirective($directive, $hashes);
+      static::fallbackAwareAppendIfEnabled($policy, $directive, $hashes);
+    }
+  }
+
+  /**
+   * Append to a directive if it or a fallback directive is enabled.
+   *
+   * If the specified directive is not enabled but one of its fallback
+   * directives is, it will be initialized with the same value as the fallback
+   * before appending the new value.
+   *
+   * If none of the specified directive's fallbacks are enabled, the directive
+   * will not be enabled.
+   *
+   * @param \Drupal\csp\Csp $policy
+   *   The policy to alter.
+   * @param string $directive
+   *   The directive name.
+   * @param array $value
+   *   The directive value.
+   *
+   * @see Csp::fallbackAwareAppendIfEnabled()
+   */
+  protected static function fallbackAwareAppendIfEnabled(Csp $policy, $directive, array $value) {
+    if ($policy->hasDirective($directive)) {
+      if (!in_array(Csp::POLICY_UNSAFE_INLINE, $policy->getDirective($directive))) {
+        $policy->appendDirective($directive, $value);
+      }
+      return;
+    }
+
+    // Duplicate the closest enabled fallback directive.
+    foreach ($policy::getDirectiveFallbackList($directive) as $fallback) {
+      if ($policy->hasDirective($fallback)) {
+        $fallbackValue = $policy->getDirective($fallback);
+        // Don't make any modifications if closest enabled fallback uses
+        // 'unsafe-inline'.
+        if (in_array(Csp::POLICY_UNSAFE_INLINE, $fallbackValue)) {
+          return;
+        }
+        $policy->setDirective($directive, $fallbackValue);
+        $policy->appendDirective($directive, $value);
+        return;
       }
     }
   }
