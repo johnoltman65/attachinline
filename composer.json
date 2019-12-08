@@ -9,5 +9,11 @@
     "support": {
         "issues": "https://www.drupal.org/project/issues/attachinline",
         "source": "https://git.drupalcode.org/project/attachinline"
+    },
+    "conflict": {
+        "drupal/csp": "<1.6"
+    },
+    "suggest": {
+         "drupal/csp": "Restrict authorized incline code to limit XSS vulnerability"
     }
 }
