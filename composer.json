@@ -10,6 +10,9 @@
         "issues": "https://www.drupal.org/project/issues/attachinline",
         "source": "https://git.drupalcode.org/project/attachinline"
     },
+    "require": {
+        "php": "^7.2"
+    },
     "conflict": {
         "drupal/csp": "<1.6"
     },
