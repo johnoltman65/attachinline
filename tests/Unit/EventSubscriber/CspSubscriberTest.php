@@ -28,6 +28,10 @@ class CspSubscriberTest extends UnitTestCase {
   public function setUp() {
     parent::setUp();
 
+    if (!class_exists(Csp::class)) {
+      $this->markTestSkipped('Content Security Policy module is not available.');
+    }
+
     $this->response = $this->getMockBuilder(HtmlResponse::class)
       ->disableOriginalConstructor()
       ->getMock();
