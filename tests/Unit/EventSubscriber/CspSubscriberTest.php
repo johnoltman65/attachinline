@@ -46,6 +46,7 @@ class CspSubscriberTest extends UnitTestCase {
    * Shouldn't alter the policy if no directives are enabled.
    *
    * @covers ::onCspPolicyAlter
+   * @covers ::registerHash
    * @covers ::fallbackAwareAppendIfEnabled
    */
   public function testNoDirectives() {
@@ -66,6 +67,7 @@ class CspSubscriberTest extends UnitTestCase {
    * Test that enabled directives are modified.
    *
    * @covers ::onCspPolicyAlter
+   * @covers ::registerHash
    * @covers ::fallbackAwareAppendIfEnabled
    */
   public function testDirectivesSet() {
@@ -101,6 +103,7 @@ class CspSubscriberTest extends UnitTestCase {
    * Test that directives are copied and modified from fallback.
    *
    * @covers ::onCspPolicyAlter
+   * @covers ::registerHash
    * @covers ::fallbackAwareAppendIfEnabled
    */
   public function testDirectivesSetFromFallback() {
@@ -132,6 +135,7 @@ class CspSubscriberTest extends UnitTestCase {
    * Test that hashes are not added if directive has 'unsafe-inline' set.
    *
    * @covers ::onCspPolicyAlter
+   * @covers ::registerHash
    * @covers ::fallbackAwareAppendIfEnabled
    */
   public function testDirectivesUnsafeInline() {
