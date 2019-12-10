@@ -10,8 +10,10 @@ use Drupal\attachinline\EventSubscriber\CspSubscriber;
 use Drupal\Tests\UnitTestCase;
 
 /**
+ * Test for Content Security Policy event integration.
+ *
+ * @group attachinline
  * @coversDefaultClass \Drupal\attachinline\EventSubscriber\CspSubscriber
- * @group csp
  */
 class CspSubscriberTest extends UnitTestCase {
 
