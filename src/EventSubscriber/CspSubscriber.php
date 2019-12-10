@@ -23,6 +23,10 @@ class CspSubscriber implements EventSubscriberInterface {
    * {@inheritDoc}
    */
   public static function getSubscribedEvents() {
+    if (!class_exists(CspEvents::class)) {
+      return [];
+    }
+
     $events[CspEvents::POLICY_ALTER] = [
       // Execute later in case other listeners add 'unsafe-inline'.
       ['onCspPolicyAlter', -10],
