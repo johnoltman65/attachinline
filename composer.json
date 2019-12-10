@@ -21,6 +21,6 @@
         "drupal/csp": "<1.6"
     },
     "suggest": {
-         "drupal/csp": "Restrict authorized incline code to limit XSS vulnerability"
+         "drupal/csp": "Restrict authorized inline code to limit XSS vulnerability"
     }
 }
