@@ -2,6 +2,7 @@
 
 namespace Drupal\attachinline\EventSubscriber;
 
+use Drupal\Component\Utility\Crypt;
 use Drupal\csp\Csp;
 use Drupal\csp\CspEvents;
 use Drupal\csp\Event\PolicyAlterEvent;
@@ -18,6 +19,20 @@ class CspSubscriber implements EventSubscriberInterface {
    * @var array[]
    */
   protected $directiveHashList = [];
+
+  /**
+   * A nonce value for the current request.
+   *
+   * @var string|null
+   */
+  protected $nonce = NULL;
+
+  /**
+   * An array of directives to enable nonce whitelisting for.
+   *
+   * @var string[]
+   */
+  protected $directiveNonceList = [];
 
   /**
    * {@inheritDoc}
@@ -47,6 +62,34 @@ class CspSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Retrieve the nonce value for the current request.
+   *
+   * The nonce will be generated when first requested.
+   *
+   * @return string
+   *   The nonce value.
+   */
+  public function getNonce() {
+    if (!$this->nonce) {
+      // Nonce should be at least 128 bits.
+      // @see https://www.w3.org/TR/CSP/#security-nonces
+      $this->nonce = rtrim(base64_encode(Crypt::randomBytes(16)), '=');
+    }
+
+    return $this->nonce;
+  }
+
+  /**
+   * Enable nonce for a directive.
+   *
+   * @param string $directive
+   *   The directive to enable nonce whitelisting for.
+   */
+  public function registerNonce($directive) {
+    $this->directiveNonceList[] = $directive;
+  }
+
+  /**
    * Add hashes to the provided policy.
    *
    * Hashes are only added if the corresponding directive is enabled in module
@@ -60,8 +103,13 @@ class CspSubscriber implements EventSubscriberInterface {
    */
   public function onCspPolicyAlter(PolicyAlterEvent $event) {
     $policy = $event->getPolicy();
+
     foreach ($this->directiveHashList as $directive => $hashes) {
       static::fallbackAwareAppendIfEnabled($policy, $directive, $hashes);
+    }
+
+    foreach ($this->directiveNonceList as $directive) {
+      static::fallbackAwareAppendIfEnabled($policy, $directive, ["'nonce-" . $this->getNonce() . "'"]);
     }
   }
 

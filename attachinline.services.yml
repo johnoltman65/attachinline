@@ -11,11 +11,11 @@ services:
 
   attachinline.asset.js.collection_renderer_decorator:
     class: Drupal\attachinline\Asset\JsCollectionRendererDecorator
-    arguments: [
-      '@attachinline.asset.js.collection_renderer_decorator.inner',
-      '@module_handler',
-      '@attachinline.csp_subscriber'
-    ]
+    arguments:
+      - '@attachinline.asset.js.collection_renderer_decorator.inner'
+      - '@config.factory'
+      - '@module_handler'
+      - '@attachinline.csp_subscriber'
     decorates: 'asset.js.collection_renderer'
 
 #  attachinline.asset.css.collection_renderer_decorator:

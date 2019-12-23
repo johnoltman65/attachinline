@@ -4,6 +4,7 @@ namespace Drupal\attachinline\Asset;
 
 use Drupal\attachinline\EventSubscriber\CspSubscriber;
 use Drupal\Core\Asset\AssetCollectionRendererInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\csp\Csp;
 
@@ -20,6 +21,13 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
   private $decorated;
 
   /**
+   * The config factory service
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  private $config;
+
+  /**
    * The Module Handler service.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -33,8 +41,21 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
    */
   private $cspSubscriber;
 
-  public function __construct(AssetCollectionRendererInterface $assetCollectionRenderer, ModuleHandlerInterface $moduleHandler, CspSubscriber $cspSubscriber) {
+  /**
+   * JsCollectionRendererDecorator constructor.
+   *
+   * @param \Drupal\Core\Asset\AssetCollectionRendererInterface $assetCollectionRenderer
+   *   The decorated Asset Collection Renderer
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config
+   *   The Config Factory service.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   The Module Handler service.
+   * @param \Drupal\attachinline\EventSubscriber\CspSubscriber $cspSubscriber
+   *   Attach Inline's CSP Event Subscriber service.
+   */
+  public function __construct(AssetCollectionRendererInterface $assetCollectionRenderer, ConfigFactoryInterface $config, ModuleHandlerInterface $moduleHandler, CspSubscriber $cspSubscriber) {
     $this->decorated = $assetCollectionRenderer;
+    $this->config = $config;
     $this->moduleHandler = $moduleHandler;
     $this->cspSubscriber = $cspSubscriber;
   }
@@ -65,13 +86,21 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
       $element = $element_defaults;
       $element['#value'] = $js_asset['data'];
 
-      $elements[] = $element;
-
       if ($this->moduleHandler->moduleExists('csp')) {
-        $cspHash = Csp::calculateHash($js_asset['data']);
-        $this->cspSubscriber->registerHash('script-src', $cspHash);
-        $this->cspSubscriber->registerHash('script-src-elem', $cspHash);
+        $whitelistMethod = $this->config->get('attachinline.settings')->get('csp-whitelist-method') ?? 'hash';
+        if ($whitelistMethod == 'nonce') {
+          $element['#attributes']['nonce'] = $this->cspSubscriber->getNonce();
+          $this->cspSubscriber->registerNonce('script-src');
+          $this->cspSubscriber->registerNonce('script-src-elem');
+        }
+        else {
+          $cspHash = Csp::calculateHash($js_asset['data']);
+          $this->cspSubscriber->registerHash('script-src', $cspHash);
+          $this->cspSubscriber->registerHash('script-src-elem', $cspHash);
+        }
       }
+
+      $elements[] = $element;
 
       // Remove the snippet so that the remaining assets can be passed to the
       // core renderer.
