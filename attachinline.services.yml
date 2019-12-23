@@ -17,11 +17,14 @@ services:
       - '@module_handler'
       - '@attachinline.csp_subscriber'
     decorates: 'asset.js.collection_renderer'
-
-#  attachinline.asset.css.collection_renderer_decorator:
-#    class: Drupal\attachinline\Asset\cssCollectionRendererDecorator
-#    arguments: ['@attachinline.asset.css.collection_renderer_decorator.inner']
-#    decorates: 'asset.css.collection_renderer_decorator'
+  attachinline.asset.css.collection_renderer_decorator:
+    class: Drupal\attachinline\Asset\CssCollectionRendererDecorator
+    arguments:
+      - '@attachinline.asset.css.collection_renderer_decorator.inner'
+      - '@config.factory'
+      - '@module_handler'
+      - '@attachinline.csp_subscriber'
+    decorates: 'asset.css.collection_renderer'
 
   attachinline.csp_subscriber:
     class: Drupal\attachinline\EventSubscriber\CspSubscriber

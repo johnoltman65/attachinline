@@ -9,9 +9,9 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\csp\Csp;
 
 /**
- * Render Inline JavaScript snippets attached to the page.
+ * Render Inline CSS snippets attached to the page.
  */
-class JsCollectionRendererDecorator implements AssetCollectionRendererInterface {
+class CssCollectionRendererDecorator implements AssetCollectionRendererInterface {
 
   /**
    * The decorated asset collection renderer.
@@ -42,7 +42,7 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
   private $cspSubscriber;
 
   /**
-   * JsCollectionRendererDecorator constructor.
+   * CssCollectionRendererDecorator constructor.
    *
    * @param \Drupal\Core\Asset\AssetCollectionRendererInterface $assetCollectionRenderer
    *   The decorated Asset Collection Renderer.
@@ -63,40 +63,40 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
   /**
    * {@inheritDoc}
    *
-   * Override core's renderer to allow inline script elements.
+   * Override core's renderer to allow inline style elements.
    *
-   * @see \Drupal\Core\Asset\JsCollectionRenderer
+   * @see \Drupal\Core\Asset\CssCollectionRenderer
    */
-  public function render(array $js_assets) {
+  public function render(array $css_assets) {
     $elements = [];
 
-    // Defaults for each SCRIPT element.
+    // Defaults for each STYLE element.
     $element_defaults = [
       '#type' => 'html_tag',
-      '#tag' => 'script',
+      '#tag' => 'style',
       '#value' => '',
     ];
 
     // Loop through all JS assets.
-    foreach ($js_assets as $key => $js_asset) {
-      if ($js_asset['type'] != 'inline') {
+    foreach ($css_assets as $key => $css_asset) {
+      if ($css_asset['type'] != 'inline') {
         continue;
       }
 
       $element = $element_defaults;
-      $element['#value'] = $js_asset['data'];
+      $element['#value'] = $css_asset['data'];
 
       if ($this->moduleHandler->moduleExists('csp')) {
         $whitelistMethod = $this->config->get('attachinline.settings')->get('csp-whitelist-method') ?? 'hash';
         if ($whitelistMethod == 'nonce') {
           $element['#attributes']['nonce'] = $this->cspSubscriber->getNonce();
-          $this->cspSubscriber->registerNonce('script-src');
-          $this->cspSubscriber->registerNonce('script-src-elem');
+          $this->cspSubscriber->registerNonce('style-src');
+          $this->cspSubscriber->registerNonce('style-src-elem');
         }
         else {
-          $cspHash = Csp::calculateHash($js_asset['data']);
-          $this->cspSubscriber->registerHash('script-src', $cspHash);
-          $this->cspSubscriber->registerHash('script-src-elem', $cspHash);
+          $cspHash = Csp::calculateHash($css_asset['data']);
+          $this->cspSubscriber->registerHash('style-src', $cspHash);
+          $this->cspSubscriber->registerHash('style-src-elem', $cspHash);
         }
       }
 
@@ -104,11 +104,11 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
 
       // Remove the snippet so that the remaining assets can be passed to the
       // core renderer.
-      unset($js_assets[$key]);
+      unset($css_assets[$key]);
     }
 
     // Add inline snippets to the end.
-    return array_merge($this->decorated->render($js_assets), $elements);
+    return array_merge($this->decorated->render($css_assets), $elements);
   }
 
 }

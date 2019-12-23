@@ -28,7 +28,44 @@ class AssetResolverDecorator implements AssetResolverInterface {
    * {@inheritDoc}
    */
   public function getCssAssets(CoreAttachedAssetsInterface $assets, $optimize) {
-    return $this->decorated->getCssAssets($assets, $optimize);
+    $cssAssets = $this->decorated->getCssAssets($assets, $optimize);
+
+    if ($assets instanceof AttachedAssetsInterface) {
+      $css = [];
+      $defaultOptions = [
+        'type'   => 'inline',
+        'group'  => CSS_COMPONENT,
+        'weight' => 0,
+      ];
+
+      foreach ($assets->getCss() as $options) {
+        if (is_string($options)) {
+          $options = ['data' => $options];
+        }
+        $options += $defaultOptions;
+
+        // Always add a tiny value to the weight, to conserve the insertion
+        // order.
+        $options['weight'] += count($css) / 1000;
+
+        $css[hash('sha256', $options['data'])] = $options;
+      }
+
+      // Sort snippets, so that they appear in the correct order.
+      if (method_exists(get_class($this->decorated), 'sort')) {
+        uasort($css, get_class($this->decorated) . '::sort');
+      }
+      else {
+        uasort($css, AssetResolver::class . '::sort');
+      }
+
+      // Prepare the return value.
+      foreach ($css as $key => $item) {
+        $cssAssets[$key] = $item;
+      }
+    }
+
+    return $cssAssets;
   }
 
   /**
@@ -37,12 +74,12 @@ class AssetResolverDecorator implements AssetResolverInterface {
   public function getJsAssets(CoreAttachedAssetsInterface $assets, $optimize) {
     $jsAssets = $this->decorated->getJsAssets($assets, $optimize);
 
-    $javascript = [];
     if ($assets instanceof AttachedAssetsInterface) {
+      $javascript = [];
       $defaultOptions = [
-        'type' => 'inline',
+        'type'   => 'inline',
+        'scope'  => 'footer',
         'group'  => JS_DEFAULT,
-        'scope' => 'footer',
         'weight' => 0,
       ];
 
@@ -69,14 +106,16 @@ class AssetResolverDecorator implements AssetResolverInterface {
 
       // Prepare the return value: filter JavaScript assets per scope.
       foreach ($javascript as $key => $item) {
-        if  ($item['scope'] == 'header') {
+        if ($item['scope'] == 'header') {
           $jsAssets[0][$key] = $item;
         }
-        else{
+        else {
           $jsAssets[1][$key] = $item;
         }
       }
     }
 
-    return  $jsAssets;
-}}
+    return $jsAssets;
+  }
+
+}

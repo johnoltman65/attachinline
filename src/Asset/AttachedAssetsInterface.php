@@ -12,7 +12,7 @@ interface AttachedAssetsInterface extends CoreAttachedAssetsInterface {
   /**
    * Sets the JavaScript snippets attached to the current response.
    *
-   * Each  snippet can be a string, or an array with properties
+   * Each snippet can be a string, or an array with properties.
    *
    * [
    *   'data' => 'alert("Hi!");',
@@ -30,7 +30,34 @@ interface AttachedAssetsInterface extends CoreAttachedAssetsInterface {
   /**
    * Returns the JavaScript snippets attached to the current response.
    *
-   * @return string[]
+   * @return array
+   *   An array of javascript snippets.
    */
   public function getJs();
+
+  /**
+   * Sets the CSS snippets attached to the current response.
+   *
+   * Each  snippet can be a string, or an array with properties.
+   *
+   * [
+   *   'data' => '#logo { border: 1px solid #000; }',
+   *   'weight' => 0,
+   * ]
+   *
+   * @param array $css
+   *   A list of CSS snippets, in the order they should be loaded.
+   *
+   * @return $this
+   */
+  public function setCss(array $css);
+
+  /**
+   * Returns the CSS snippets attached to the current response.
+   *
+   * @return array
+   *   An array of CSS snippets.
+   */
+  public function getCss();
+
 }

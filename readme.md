@@ -14,12 +14,17 @@ $render['element'] = [
     // New functionality
     'js' => [
       [
-        'data' => 'alert("Hi!")',
-        'scope' => 'header',
+        'data'   => 'alert("Hi!")',
+        'scope'  => 'header',
+        'group'  => JS_DEFAULT,
+        'weight' => -30,
       ],
     ],
     'css' => [
-      '.highlight { background-color: yellow; }',
+      [
+        'data'  => '.highlight { background-color: yellow; }',
+        'group' => CSS_THEME,
+      ],
     ],
   ],
 ];
