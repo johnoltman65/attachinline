@@ -20,6 +20,12 @@ class AssetResolverDecorator implements AssetResolverInterface {
    */
   private $decorated;
 
+  /**
+   * AssetResolverDecorator constructor.
+   *
+   * @param \Drupal\Core\Asset\AssetResolverInterface $assetResolver
+   *   The Decorated Asset Resolver Service.
+   */
   public function __construct(AssetResolverInterface $assetResolver) {
     $this->decorated = $assetResolver;
   }
@@ -72,9 +78,11 @@ class AssetResolverDecorator implements AssetResolverInterface {
    * {@inheritDoc}
    */
   public function getJsAssets(CoreAttachedAssetsInterface $assets, $optimize) {
-    $jsAssets = $this->decorated->getJsAssets($assets, $optimize);
+    $headerAssets = [];
+    $footerAssets = [];
 
     if ($assets instanceof AttachedAssetsInterface) {
+      $headerLibraries = [];
       $javascript = [];
       $defaultOptions = [
         'type'   => 'inline',
@@ -107,13 +115,29 @@ class AssetResolverDecorator implements AssetResolverInterface {
       // Prepare the return value: filter JavaScript assets per scope.
       foreach ($javascript as $key => $item) {
         if ($item['scope'] == 'header') {
-          $jsAssets[0][$key] = $item;
+          $headerAssets[$key] = $item;
+
+          // Add proxy dependencies.
+          // @see \Drupal\attachinline\Asset\LibraryDiscoveryDecorator
+          if (isset($item['dependencies'])) {
+            foreach ($item['dependencies'] as $library) {
+              $headerLibraries[] = 'attachinline/' . $library;
+            }
+          }
         }
         else {
-          $jsAssets[1][$key] = $item;
+          $footerAssets[$key] = $item;
         }
       }
+
+      if (!empty($headerLibraries)) {
+        $assets->setLibraries(array_merge($assets->getLibraries(), $headerLibraries));
+      }
     }
+
+    $jsAssets = $this->decorated->getJsAssets($assets, $optimize);
+    $jsAssets[0] = array_merge($jsAssets[0], $headerAssets);
+    $jsAssets[1] = array_merge($jsAssets[1], $footerAssets);
 
     return $jsAssets;
   }

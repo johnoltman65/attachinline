@@ -18,6 +18,7 @@ $render['element'] = [
         'scope'  => 'header',
         'group'  => JS_DEFAULT,
         'weight' => -30,
+        'dependencies' => ['core/jquery'],
       ],
     ],
     'css' => [
