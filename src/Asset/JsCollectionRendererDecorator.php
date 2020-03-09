@@ -3,6 +3,7 @@
 namespace Drupal\attachinline\Asset;
 
 use Drupal\attachinline\EventSubscriber\CspSubscriber;
+use Drupal\attachinline\Render\AttachInlineMarkup;
 use Drupal\Core\Asset\AssetCollectionRendererInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -84,7 +85,7 @@ class JsCollectionRendererDecorator implements AssetCollectionRendererInterface 
       }
 
       $element = $element_defaults;
-      $element['#value'] = $js_asset['data'];
+      $element['#value'] = AttachInlineMarkup::create($js_asset['data']);
 
       if ($this->moduleHandler->moduleExists('csp')) {
         $whitelistMethod = $this->config->get('attachinline.settings')->get('csp-whitelist-method') ?? 'hash';
