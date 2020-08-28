@@ -54,7 +54,7 @@ class AssetResolverDecorator implements AssetResolverInterface {
         // order.
         $options['weight'] += count($css) / 1000;
 
-        $css[hash('sha256', $options['data'])] = $options;
+        $css['attachinline-' . count($css)] = $options;
       }
 
       // Sort snippets, so that they appear in the correct order.
@@ -101,7 +101,7 @@ class AssetResolverDecorator implements AssetResolverInterface {
         // order.
         $options['weight'] += count($javascript) / 1000;
 
-        $javascript[hash('sha256', $options['data'])] = $options;
+        $javascript['attachinline-' . count($javascript)] = $options;
       }
 
       // Sort JavaScript snippets, so that they appear in the correct order.
