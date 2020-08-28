@@ -4,6 +4,6 @@ attachinline.settings:
   type: config_object
   label: 'Attach Inline Settings'
   mapping:
-    csp-whitelist-method:
+    csp-allow-method:
       type: string
-      label: 'CSP Whitelist Method'
+      label: 'CSP Allow Method'

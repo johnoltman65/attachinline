@@ -28,7 +28,7 @@ class CspSubscriber implements EventSubscriberInterface {
   protected $nonce = NULL;
 
   /**
-   * An array of directives to enable nonce whitelisting for.
+   * An array of directives to enable nonce for.
    *
    * @var string[]
    */
@@ -57,7 +57,7 @@ class CspSubscriber implements EventSubscriberInterface {
    * @param string $hash
    *   The hash value.
    */
-  public function registerHash($directive, $hash) {
+  public function registerHash(string $directive, string $hash) {
     $this->directiveHashList[$directive][] = "'" . $hash . "'";
   }
 
@@ -83,9 +83,9 @@ class CspSubscriber implements EventSubscriberInterface {
    * Enable nonce for a directive.
    *
    * @param string $directive
-   *   The directive to enable nonce whitelisting for.
+   *   The directive to enable nonce for.
    */
-  public function registerNonce($directive) {
+  public function registerNonce(string $directive) {
     $this->directiveNonceList[] = $directive;
   }
 
@@ -132,7 +132,7 @@ class CspSubscriber implements EventSubscriberInterface {
    *
    * @see Csp::fallbackAwareAppendIfEnabled()
    */
-  protected static function fallbackAwareAppendIfEnabled(Csp $policy, $directive, array $value) {
+  protected static function fallbackAwareAppendIfEnabled(Csp $policy, string $directive, array $value) {
     if ($policy->hasDirective($directive)) {
       if (!in_array(Csp::POLICY_UNSAFE_INLINE, $policy->getDirective($directive))) {
         $policy->appendDirective($directive, $value);

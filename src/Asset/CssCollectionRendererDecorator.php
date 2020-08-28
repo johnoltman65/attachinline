@@ -88,8 +88,8 @@ class CssCollectionRendererDecorator implements AssetCollectionRendererInterface
       $element['#value'] = AttachInlineMarkup::create($css_asset['data']);
 
       if ($this->moduleHandler->moduleExists('csp')) {
-        $whitelistMethod = $this->config->get('attachinline.settings')->get('csp-whitelist-method') ?? 'hash';
-        if ($whitelistMethod == 'nonce') {
+        $allowMethod = $this->config->get('attachinline.settings')->get('csp-allow-method') ?? 'hash';
+        if ($allowMethod == 'nonce') {
           $element['#attributes']['nonce'] = $this->cspSubscriber->getNonce();
           $this->cspSubscriber->registerNonce('style-src');
           $this->cspSubscriber->registerNonce('style-src-elem');

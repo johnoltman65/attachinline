@@ -120,4 +120,5 @@ class HtmlResponseAttachmentsProcessor extends CoreHtmlResponseAttachmentsProces
 
     return $response;
   }
+
 }
