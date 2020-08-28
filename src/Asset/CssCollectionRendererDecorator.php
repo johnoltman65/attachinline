@@ -76,6 +76,7 @@ class CssCollectionRendererDecorator implements AssetCollectionRendererInterface
       '#type' => 'html_tag',
       '#tag' => 'style',
       '#value' => '',
+      '#attributes' => [],
     ];
 
     // Loop through all JS assets.
@@ -86,6 +87,10 @@ class CssCollectionRendererDecorator implements AssetCollectionRendererInterface
 
       $element = $element_defaults;
       $element['#value'] = AttachInlineMarkup::create($css_asset['data']);
+
+      if (!empty($css_asset['attributes'])) {
+        $element['#attributes'] += $css_asset['attributes'];
+      }
 
       if ($this->moduleHandler->moduleExists('csp')) {
         $allowMethod = $this->config->get('attachinline.settings')->get('csp-allow-method') ?? 'hash';

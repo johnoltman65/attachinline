@@ -25,6 +25,9 @@ $render['element'] = [
       [
         'data'  => '.highlight { background-color: yellow; }',
         'group' => CSS_THEME,
+        'attributes' => [
+          'media' => 'all',
+        ]
       ],
     ],
   ],
