@@ -73,7 +73,7 @@ class CspSubscriber implements EventSubscriberInterface {
     if (!$this->nonce) {
       // Nonce should be at least 128 bits.
       // @see https://www.w3.org/TR/CSP/#security-nonces
-      $this->nonce = rtrim(base64_encode(Crypt::randomBytes(16)), '=');
+      $this->nonce = Crypt::randomBytesBase64(16);
     }
 
     return $this->nonce;
