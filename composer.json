@@ -11,7 +11,7 @@
         "source": "https://git.drupalcode.org/project/attachinline"
     },
     "require": {
-        "php": "^7.2",
+        "php": "^8.0",
         "drupal/core": "^8.6 || ^9.0"
     },
     "require-dev": {
